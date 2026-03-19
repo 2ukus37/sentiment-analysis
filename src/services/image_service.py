@@ -1,21 +1,25 @@
 """
 Image Service: Extract text from images for cyberbullying detection.
-Applies image preprocessing to maximize OCR accuracy.
+Uses Tesseract (local) with OCR.space (cloud) as fallback.
 """
 import logging
 import io
 import os
 import base64
+import requests
 from typing import Dict
 from PIL import Image, ImageFilter, ImageEnhance, ImageOps
 
 
 class ImageService:
 
+    OCR_SPACE_URL = 'https://api.ocr.space/parse/image'
+
     def __init__(self):
         self.logger = logging.getLogger(__name__)
         self.pytesseract = None
         self.ocr_available = False
+        self.ocr_space_key = os.getenv('OCR_SPACE_API_KEY', '')
         self._init_tesseract()
 
     def _init_tesseract(self):
@@ -24,7 +28,6 @@ class ImageService:
             import pytesseract
             self.pytesseract = pytesseract
 
-            # Resolve path: .env → common install locations → system PATH
             candidates = [
                 os.getenv('TESSERACT_PATH', ''),
                 r'C:\Program Files\Tesseract-OCR\tesseract.exe',
@@ -44,14 +47,12 @@ class ImageService:
                     path_set = True
                     break
 
-            # If no path found via exists(), force the default Windows path anyway
-            # (os.path.exists can fail with spaces in path on some environments)
             if not path_set:
                 default = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
                 pytesseract.pytesseract.tesseract_cmd = default
                 self.logger.info(f"Forcing Tesseract path to: {default}")
 
-            # Ensure TESSDATA_PREFIX is set so Tesseract can find language data
+            # Ensure TESSDATA_PREFIX is set
             tessdata_candidates = [
                 os.getenv('TESSDATA_PREFIX', ''),
                 r'C:\Program Files\Tesseract-OCR\tessdata',
@@ -64,7 +65,6 @@ class ImageService:
                     self.logger.info(f"TESSDATA_PREFIX set to: {td}")
                     break
 
-            # Verify it actually works
             pytesseract.get_tesseract_version()
             self.ocr_available = True
             self.logger.info("Tesseract OCR is ready")
@@ -81,49 +81,60 @@ class ImageService:
     def extract_text_from_image(self, image_data: bytes) -> Dict:
         """
         Extract text from raw image bytes.
-        Applies multiple preprocessing passes and picks the best result.
+        Tries Tesseract first, falls back to OCR.space if result is empty.
         """
-        if not self.ocr_available:
-            return {
-                'success': False,
-                'error': (
-                    'Tesseract OCR is not installed or not in PATH.\n'
-                    'Windows: download from https://github.com/UB-Mannheim/tesseract/wiki\n'
-                    'Linux:   sudo apt install tesseract-ocr\n'
-                    'Mac:     brew install tesseract\n'
-                    'Then set TESSERACT_PATH in your .env file and restart the server.'
-                ),
-                'text': '',
-                'installation_required': True,
-            }
-
+        image = None
         try:
             image = Image.open(io.BytesIO(image_data))
             self.logger.info(f"Image loaded — size: {image.size}, mode: {image.mode}")
+        except Exception as e:
+            return {'success': False, 'error': f'Cannot open image: {e}', 'text': ''}
 
-            text, method = self._extract_best(image)
+        # --- Try Tesseract ---
+        if self.ocr_available:
+            try:
+                text, method = self._extract_best(image)
+                if text:
+                    self.logger.info(f"Tesseract extracted {len(text)} chars via '{method}'")
+                    return {
+                        'success': True,
+                        'text': text,
+                        'length': len(text),
+                        'image_size': image.size,
+                        'method': f'tesseract:{method}',
+                    }
+                self.logger.info("Tesseract returned no text, trying OCR.space fallback")
+            except Exception as e:
+                self.logger.warning(f"Tesseract error: {e}, trying OCR.space fallback")
 
-            if not text:
-                return {
-                    'success': True,
-                    'text': '',
-                    'length': 0,
-                    'image_size': image.size,
-                    'warning': 'No text detected. Ensure the image has clear, readable text.',
-                }
+        # --- Fallback: OCR.space ---
+        if self.ocr_space_key:
+            result = self._ocr_space(image_data)
+            if result.get('success') and result.get('text'):
+                return result
 
-            self.logger.info(f"Extracted {len(text)} chars via '{method}'")
+        # --- Both failed ---
+        if not self.ocr_available and not self.ocr_space_key:
             return {
-                'success': True,
-                'text': text,
-                'length': len(text),
-                'image_size': image.size,
-                'method': method,
+                'success': False,
+                'error': (
+                    'No OCR engine available. Install Tesseract or set OCR_SPACE_API_KEY in .env.'
+                ),
+                'text': '',
             }
 
-        except Exception as e:
-            self.logger.error(f"OCR error: {e}", exc_info=True)
-            return {'success': False, 'error': str(e), 'text': ''}
+        return {
+            'success': False,
+            'error': (
+                'No readable text found in the image.\n'
+                'Tips:\n'
+                '• Use a clear, high-resolution image\n'
+                '• Ensure dark text on a light background\n'
+                '• Try a screenshot instead of a photo'
+            ),
+            'text': '',
+            'image_size': image.size if image else None,
+        }
 
     def extract_text_from_base64(self, b64: str) -> Dict:
         """Extract text from a base64-encoded image string."""
@@ -139,58 +150,87 @@ class ImageService:
         return os.path.splitext(filename.lower())[1] in exts
 
     # ------------------------------------------------------------------
+    # OCR.space cloud fallback
+    # ------------------------------------------------------------------
+
+    def _ocr_space(self, image_data: bytes) -> Dict:
+        """Send image to OCR.space API and return extracted text."""
+        try:
+            self.logger.info("Calling OCR.space API...")
+            response = requests.post(
+                self.OCR_SPACE_URL,
+                files={'file': ('image.png', image_data, 'image/png')},
+                data={
+                    'apikey': self.ocr_space_key,
+                    'language': 'eng',
+                    'isOverlayRequired': False,
+                    'detectOrientation': True,
+                    'scale': True,
+                    'OCREngine': 2,  # Engine 2 is better for complex images
+                },
+                timeout=30,
+            )
+            response.raise_for_status()
+            data = response.json()
+
+            if data.get('IsErroredOnProcessing'):
+                err = data.get('ErrorMessage', ['Unknown OCR.space error'])
+                self.logger.warning(f"OCR.space error: {err}")
+                return {'success': False, 'error': str(err), 'text': ''}
+
+            parsed = data.get('ParsedResults', [])
+            if not parsed:
+                return {'success': True, 'text': '', 'method': 'ocr.space'}
+
+            text = self._clean(' '.join(
+                r.get('ParsedText', '') for r in parsed
+            ))
+            self.logger.info(f"OCR.space extracted {len(text)} chars")
+            return {
+                'success': True,
+                'text': text,
+                'length': len(text),
+                'method': 'ocr.space',
+            }
+
+        except Exception as e:
+            self.logger.error(f"OCR.space request failed: {e}")
+            return {'success': False, 'error': str(e), 'text': ''}
+
+    # ------------------------------------------------------------------
     # Preprocessing helpers
     # ------------------------------------------------------------------
 
     def _to_rgb(self, image: Image.Image) -> Image.Image:
-        """Ensure image is in RGB mode."""
         if image.mode not in ('RGB', 'L'):
             image = image.convert('RGB')
         return image
 
     def _preprocess_standard(self, image: Image.Image) -> Image.Image:
-        """
-        Standard preprocessing:
-        - Convert to grayscale
-        - Upscale small images (Tesseract works best at ~300 DPI)
-        - Sharpen + increase contrast
-        """
-        img = self._to_rgb(image).convert('L')  # grayscale
-
-        # Upscale if too small
+        img = self._to_rgb(image).convert('L')
         w, h = img.size
         if w < 800 or h < 800:
             scale = max(800 / w, 800 / h, 2.0)
             img = img.resize((int(w * scale), int(h * scale)), Image.LANCZOS)
-
         img = ImageEnhance.Contrast(img).enhance(2.0)
         img = ImageEnhance.Sharpness(img).enhance(2.0)
         return img
 
     def _preprocess_binarize(self, image: Image.Image) -> Image.Image:
-        """
-        Binarization preprocessing:
-        - Grayscale → threshold to pure black/white
-        - Helps with low-contrast or noisy backgrounds
-        """
         img = self._preprocess_standard(image)
-        # Simple threshold at midpoint
         img = img.point(lambda p: 255 if p > 128 else 0, '1').convert('L')
         return img
 
     def _preprocess_inverted(self, image: Image.Image) -> Image.Image:
-        """Invert colors — useful for white text on dark backgrounds."""
         img = self._preprocess_standard(image)
         return ImageOps.invert(img)
 
     def _preprocess_denoise(self, image: Image.Image) -> Image.Image:
-        """Apply median filter to reduce noise before OCR."""
         img = self._preprocess_standard(image)
         img = img.filter(ImageFilter.MedianFilter(size=3))
         return img
 
     def _preprocess_large(self, image: Image.Image) -> Image.Image:
-        """Aggressive upscale for very small/thumbnail images."""
         img = self._to_rgb(image).convert('L')
         w, h = img.size
         scale = max(1600 / w, 1600 / h, 3.0)
@@ -204,27 +244,19 @@ class ImageService:
     # ------------------------------------------------------------------
 
     def _run_ocr(self, image: Image.Image, config: str = '') -> str:
-        """Run Tesseract on a PIL image and return cleaned text."""
         text = self.pytesseract.image_to_string(image, config=config)
         return self._clean(text)
 
     @staticmethod
     def _clean(text: str) -> str:
-        """Remove noise characters and collapse whitespace."""
         import re
-        # Keep printable ASCII + common punctuation
         text = re.sub(r'[^\x20-\x7E\n]', ' ', text)
-        # Collapse multiple spaces/newlines
         text = re.sub(r'[ \t]+', ' ', text)
         text = re.sub(r'\n{3,}', '\n\n', text)
         return text.strip()
 
     def _extract_best(self, image: Image.Image):
-        """
-        Try multiple preprocessing + Tesseract config combinations.
-        Returns (best_text, method_name).
-        """
-        # (label, preprocessor, tesseract_config)
+        """Try multiple Tesseract strategies, return (best_text, method)."""
         strategies = [
             ('standard',       self._preprocess_standard,  '--oem 3 --psm 6'),
             ('binarize',       self._preprocess_binarize,  '--oem 3 --psm 6'),
@@ -241,21 +273,14 @@ class ImageService:
 
         for label, preprocess, config in strategies:
             try:
-                processed = preprocess(image)
-                text = self._run_ocr(processed, config)
-                self.logger.debug(f"[{label}] extracted {len(text)} chars")
-
-                # Prefer the result with the most content
+                text = self._run_ocr(preprocess(image), config)
+                self.logger.debug(f"[{label}] {len(text)} chars")
                 if len(text) > len(best_text):
                     best_text = text
                     best_method = label
-
-                # Early exit if we already have a solid result
                 if len(best_text) > 100:
                     break
-
             except Exception as e:
                 self.logger.debug(f"[{label}] failed: {e}")
-                continue
 
         return best_text, best_method
