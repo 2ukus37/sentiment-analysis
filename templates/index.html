@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberbullying Detection System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛡️ Cyberbullying Detection System</h1>
+            <p class="subtitle">AI-powered detection of hate speech and personal attacks</p>
+        </header>
+
+        <main>
+            <div class="card">
+                <h2>Analyze Text</h2>
+                
+                <form id="predictionForm">
+                    <div class="form-group">
+                        <label for="textInput">Enter text to analyze:</label>
+                        <textarea 
+                            id="textInput" 
+                            name="text" 
+                            rows="5" 
+                            placeholder="Type or paste text here..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sourceType">Source Type:</label>
+                        <select id="sourceType" name="source_type">
+                            <option value="auto">Auto-detect</option>
+                            <option value="twitter">Twitter / Social Media</option>
+                            <option value="wikipedia">Wikipedia / Forums</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="analyzeBtn">
+                        <span class="btn-text">Analyze Text</span>
+                        <span class="spinner" style="display: none;">⏳</span>
+                    </button>
+                </form>
+            </div>
+
+            <div id="resultCard" class="card result-card" style="display: none;">
+                <h2>Analysis Result</h2>
+                
+                <div class="result-content">
+                    <div class="result-header">
+                        <div class="result-label" id="resultLabel"></div>
+                        <div class="result-source" id="resultSource"></div>
+                    </div>
+
+                    <div class="confidence-section">
+                        <div class="confidence-label">Confidence Score</div>
+                        <div class="confidence-bar-container">
+                            <div class="confidence-bar" id="confidenceBar"></div>
+                        </div>
+                        <div class="confidence-value" id="confidenceValue"></div>
+                    </div>
+
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Analyzed Text:</span>
+                            <span class="detail-value" id="analyzedText"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Processing Time:</span>
+                            <span class="detail-value" id="latency"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="errorCard" class="card error-card" style="display: none;">
+                <h3>⚠️ Error</h3>
+                <p id="errorMessage"></p>
+            </div>
+
+            <div class="examples-section">
+                <h3>Try These Examples</h3>
+                <div class="examples-grid">
+                    <div class="example-card" onclick="fillExample('Having a great day! Thanks everyone!', 'twitter')">
+                        <div class="example-type">Non-Hate</div>
+                        <div class="example-text">"Having a great day! Thanks everyone!"</div>
+                    </div>
+                    <div class="example-card" onclick="fillExample('You are terrible and I hate you', 'twitter')">
+                        <div class="example-type">Hate Speech</div>
+                        <div class="example-text">"You are terrible and I hate you"</div>
+                    </div>
+                    <div class="example-card" onclick="fillExample('This is a helpful edit to the article', 'wikipedia')">
+                        <div class="example-type">Non-Attack</div>
+                        <div class="example-text">"This is a helpful edit to the article"</div>
+                    </div>
+                    <div class="example-card" onclick="fillExample('Stop vandalizing you moron', 'wikipedia')">
+                        <div class="example-type">Personal Attack</div>
+                        <div class="example-text">"Stop vandalizing you moron"</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <div class="footer-content">
+                <p>Powered by Machine Learning | SVM + Random Forest</p>
+                <div class="footer-links">
+                    <a href="/api/health" target="_blank">API Status</a>
+                    <a href="/api/models" target="_blank">Model Info</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

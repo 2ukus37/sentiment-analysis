@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>API Documentation - Cyberbullying Detection System</title>
+<!-- BEGIN: Tailwind CSS Integration -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark: '#0f172a',
+              accent: '#38bdf8',
+              surface: '#1e293b'
+            }
+          }
+        }
+      }
+    }
+  </script>
+<!-- END: Tailwind CSS Integration -->
+<!-- BEGIN: Custom Styles -->
+<style data-purpose="scrollbar-styling">
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+<style data-purpose="code-formatting">
+    .code-block {
+      font-family: 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", monospace;
+      background-color: #0b1120;
+    }
+  </style>
+<!-- END: Custom Styles -->
+</head>
+<body class="bg-brand-dark text-slate-200 min-h-screen flex flex-col font-sans">
+<!-- BEGIN: Navigation Header -->
+<header class="h-16 border-b border-slate-800 flex items-center justify-between px-6 bg-brand-dark sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 bg-brand-accent rounded flex items-center justify-center">
+<svg class="h-5 w-5 text-brand-dark" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<h1 class="text-xl font-bold tracking-tight">CyberGuard <span class="text-brand-accent">API</span></h1>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-medium hover:text-brand-accent transition-colors" href="#">Documentation</a>
+<a class="text-sm font-medium text-slate-400 hover:text-brand-accent transition-colors" href="#">Playground</a>
+<a class="text-sm font-medium text-slate-400 hover:text-brand-accent transition-colors" href="#">Changelog</a>
+<button class="bg-brand-accent text-brand-dark px-4 py-2 rounded-md text-sm font-bold hover:bg-white transition-colors">
+        API Dashboard
+      </button>
+</nav>
+</header>
+<!-- END: Navigation Header -->
+<div class="flex flex-1 overflow-hidden">
+<!-- BEGIN: Sidebar Navigation -->
+<aside class="w-72 border-r border-slate-800 hidden lg:block overflow-y-auto bg-brand-dark/50" data-purpose="sidebar">
+<div class="p-6">
+<div class="mb-8">
+<h3 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Introduction</h3>
+<ul class="space-y-2">
+<li><a class="text-sm text-brand-accent font-medium block" href="#">Getting Started</a></li>
+<li><a class="text-sm text-slate-400 hover:text-slate-200 block" href="#">Authentication</a></li>
+<li><a class="text-sm text-slate-400 hover:text-slate-200 block" href="#">Rate Limiting</a></li>
+</ul>
+</div>
+<div class="mb-8">
+<h3 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Endpoints</h3>
+<ul class="space-y-4">
+<li>
+<a class="flex items-center gap-2 text-sm text-slate-200 hover:text-brand-accent bg-slate-800/50 p-2 rounded-lg" href="#predict">
+<span class="text-[10px] font-bold bg-green-500/10 text-green-400 px-1.5 py-0.5 rounded border border-green-500/20">POST</span>
+<span>/api/predict</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-2 text-sm text-slate-400 hover:text-brand-accent p-2 rounded-lg" href="#batch">
+<span class="text-[10px] font-bold bg-green-500/10 text-green-400 px-1.5 py-0.5 rounded border border-green-500/20">POST</span>
+<span>/api/predict/batch</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-2 text-sm text-slate-400 hover:text-brand-accent p-2 rounded-lg" href="#feedback">
+<span class="text-[10px] font-bold bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded border border-blue-500/20">PUT</span>
+<span>/api/feedback</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-2 text-sm text-slate-400 hover:text-brand-accent p-2 rounded-lg" href="#models">
+<span class="text-[10px] font-bold bg-amber-500/10 text-amber-400 px-1.5 py-0.5 rounded border border-amber-500/20">GET</span>
+<span>/api/models</span>
+</a>
+</li>
+</ul>
+</div>
+<div class="mb-8">
+<h3 class="text-xs font-semibold text-slate-500 uppercase tracking-widest mb-4">Support</h3>
+<ul class="space-y-2">
+<li><a class="text-sm text-slate-400 hover:text-slate-200 block" href="#">Help Center</a></li>
+<li><a class="text-sm text-slate-400 hover:text-slate-200 block" href="#">Community Discord</a></li>
+</ul>
+</div>
+</div>
+</aside>
+<!-- END: Sidebar Navigation -->
+<!-- BEGIN: Main Content Area -->
+<main class="flex-1 overflow-y-auto p-6 md:p-12 max-w-5xl" data-purpose="main-documentation-content">
+<!-- BEGIN: Content Header -->
+<section class="mb-12">
+<nav aria-label="Breadcrumb" class="flex text-sm text-slate-500 mb-4">
+<ol class="flex items-center space-x-2">
+<li>API Reference</li>
+<li><svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></li>
+<li class="text-brand-accent">Predict</li>
+</ol>
+</nav>
+<h2 class="text-4xl font-extrabold text-white mb-4" id="predict">Single Prediction</h2>
+<p class="text-lg text-slate-400 max-w-2xl leading-relaxed">
+          Analyze a single text string for potential cyberbullying content. Our NLP engine classifies the text into various categories including hate speech, aggression, and personal attacks.
+        </p>
+</section>
+<!-- END: Content Header -->
+<!-- BEGIN: API Specification Section -->
+<section class="space-y-10">
+<!-- Method and Endpoint -->
+<div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl">
+<div class="px-6 py-4 bg-slate-800/50 border-b border-slate-800 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="px-3 py-1 bg-green-500 text-brand-dark text-xs font-black rounded">POST</span>
+<code class="text-brand-accent font-mono text-sm font-bold">https://api.cyberguard.io/v1/predict</code>
+</div>
+<button class="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition-colors">
+<svg class="h-4 w-4" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+              Copy
+            </button>
+</div>
+<div class="p-8">
+<!-- Request Parameters -->
+<div class="mb-10">
+<h3 class="text-sm font-bold text-slate-200 uppercase tracking-widest mb-6 flex items-center gap-2">
+                Request Body
+                <span class="text-[10px] bg-slate-700 text-slate-300 px-2 py-0.5 rounded-full lowercase font-normal">json</span>
+</h3>
+<!-- Code Block: Request -->
+<div class="code-block rounded-lg p-6 border border-slate-700 relative group">
+<pre class="text-sm leading-relaxed overflow-x-auto text-blue-300"><code>{
+  <span class="text-slate-400">"text"</span>: <span class="text-emerald-400">"You are so stupid, why do you even exist?"</span>,
+  <span class="text-slate-400">"context_id"</span>: <span class="text-emerald-400">"thread_92834"</span>,
+  <span class="text-slate-400">"model_version"</span>: <span class="text-emerald-400">"latest"</span>,
+  <span class="text-slate-400">"include_scores"</span>: <span class="text-amber-400">true</span>
+}</code></pre>
+</div>
+</div>
+<!-- Response Parameters -->
+<div>
+<h3 class="text-sm font-bold text-slate-200 uppercase tracking-widest mb-6 flex items-center gap-2">
+                Response Example
+                <span class="text-[10px] bg-green-900/40 text-green-400 px-2 py-0.5 rounded-full uppercase font-normal">200 OK</span>
+</h3>
+<!-- Code Block: Response -->
+<div class="code-block rounded-lg p-6 border border-slate-700 relative overflow-x-auto">
+<pre class="text-sm leading-relaxed text-blue-300"><code>{
+  <span class="text-slate-400">"status"</span>: <span class="text-emerald-400">"success"</span>,
+  <span class="text-slate-400">"request_id"</span>: <span class="text-emerald-400">"req_fb2930485"</span>,
+  <span class="text-slate-400">"prediction"</span>: {
+    <span class="text-slate-400">"is_cyberbullying"</span>: <span class="text-amber-400">true</span>,
+    <span class="text-slate-400">"confidence"</span>: <span class="text-pink-400">0.984</span>,
+    <span class="text-slate-400">"categories"</span>: [
+      { <span class="text-slate-400">"label"</span>: <span class="text-emerald-400">"insult"</span>, <span class="text-slate-400">"score"</span>: <span class="text-pink-400">0.92</span> },
+      { <span class="text-slate-400">"label"</span>: <span class="text-emerald-400">"personal_attack"</span>, <span class="text-slate-400">"score"</span>: <span class="text-pink-400">0.87</span> }
+    ],
+    <span class="text-slate-400">"flagged_tokens"</span>: [<span class="text-emerald-400">"stupid"</span>, <span class="text-emerald-400">"why do you even exist"</span>]
+  },
+  <span class="text-slate-400">"processing_time_ms"</span>: <span class="text-pink-400">142</span>
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<!-- Parameters Detail Table -->
+<div class="mt-12">
+<h3 class="text-xl font-bold text-white mb-6">Properties</h3>
+<div class="overflow-x-auto border border-slate-800 rounded-xl">
+<table class="w-full text-left text-sm">
+<thead class="bg-slate-800/50 text-slate-400 uppercase text-xs">
+<tr>
+<th class="px-6 py-4 font-semibold">Field</th>
+<th class="px-6 py-4 font-semibold">Type</th>
+<th class="px-6 py-4 font-semibold">Description</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-800">
+<tr>
+<td class="px-6 py-4 font-mono text-brand-accent">text</td>
+<td class="px-6 py-4 text-slate-500">string</td>
+<td class="px-6 py-4 text-slate-300">The content to be analyzed. Max 5000 characters.</td>
+</tr>
+<tr>
+<td class="px-6 py-4 font-mono text-brand-accent">context_id</td>
+<td class="px-6 py-4 text-slate-500">string</td>
+<td class="px-6 py-4 text-slate-300">Optional. Unique ID for tracking user sessions or threads.</td>
+</tr>
+<tr>
+<td class="px-6 py-4 font-mono text-brand-accent">include_scores</td>
+<td class="px-6 py-4 text-slate-500">boolean</td>
+<td class="px-6 py-4 text-slate-300">Return confidence scores for each sub-category. Defaults to false.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- END: API Specification Section -->
+<footer class="mt-20 pt-8 border-t border-slate-800 text-slate-500 text-sm flex justify-between items-center">
+<p>© 2023 CyberGuard Technologies Inc.</p>
+<div class="flex gap-6">
+<a class="hover:text-slate-300" href="#">Privacy Policy</a>
+<a class="hover:text-slate-300" href="#">Terms of Service</a>
+</div>
+</footer>
+</main>
+<!-- END: Main Content Area -->
+</div>
+<!-- BEGIN: Floating Action Button (Mobile Only) -->
+<div class="lg:hidden fixed bottom-6 right-6">
+<button class="bg-brand-accent text-brand-dark p-4 rounded-full shadow-lg">
+<svg class="h-6 w-6" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+<!-- END: Floating Action Button -->
+</body></html>

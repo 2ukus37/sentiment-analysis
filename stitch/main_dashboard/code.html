@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cyberbullying Detection System | Admin Dashboard</title>
+<!-- BEGIN: External Scripts -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            slate: {
+              950: '#020617',
+              900: '#0f172a',
+              800: '#1e293b',
+              700: '#334155',
+            },
+            accent: {
+              cyan: '#22d3ee',
+              green: '#4ade80'
+            }
+          }
+        }
+      }
+    }
+  </script>
+<!-- END: External Scripts -->
+<!-- BEGIN: Custom Typography Styles -->
+<style data-purpose="typography">
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+<!-- END: Custom Typography Styles -->
+<!-- BEGIN: Layout Styles -->
+<style data-purpose="layout-ui">
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .status-pulse {
+      box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+    }
+  </style>
+<!-- END: Layout Styles -->
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex">
+<!-- BEGIN: Sidebar Navigation -->
+<aside class="w-64 border-r border-slate-800 flex-shrink-0 flex flex-col h-screen sticky top-0" data-purpose="sidebar-nav">
+<div class="p-6 border-b border-slate-800">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center">
+<svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<span class="font-bold tracking-tight">CDS Admin</span>
+</div>
+</div>
+<nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+<a class="flex items-center gap-3 px-4 py-3 bg-slate-800 text-white rounded-xl transition-all" href="#">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-all text-slate-400 hover:text-white" href="#">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span>Text Analysis</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-all text-slate-400 hover:text-white" href="#">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span>Image OCR</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-all text-slate-400 hover:text-white" href="#">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span>File Upload</span>
+</a>
+</nav>
+<div class="p-4 border-t border-slate-800">
+<a class="flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-all text-slate-400 hover:text-white" href="#">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span>API Docs</span>
+</a>
+</div>
+</aside>
+<!-- END: Sidebar Navigation -->
+<!-- BEGIN: Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 bg-slate-900/50">
+<!-- BEGIN: Hero Section -->
+<header class="p-8 lg:p-12 border-b border-slate-800" data-purpose="hero-section">
+<div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+<div class="space-y-2">
+<h1 class="text-4xl font-extrabold tracking-tight text-white">Cyberbullying Detection System</h1>
+<p class="text-slate-400 max-w-lg leading-relaxed">
+            Advanced real-time analysis for identifying harmful content across social platforms using machine learning heuristics.
+          </p>
+<!-- API Status Badge -->
+<div class="flex items-center gap-2 pt-2">
+<span class="relative flex h-3 w-3">
+<span class="status-pulse absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-accent-green"></span>
+</span>
+<span class="text-xs font-semibold uppercase tracking-widest text-accent-green">API Health: Online</span>
+</div>
+</div>
+<!-- Quick Analyze Area -->
+<div class="w-full md:w-96 glass-card p-4 rounded-2xl" data-purpose="quick-analyze-container">
+<label class="block text-sm font-medium text-slate-300 mb-2" for="quick-analyze">Quick Analyze</label>
+<textarea class="w-full bg-slate-950 border-slate-700 rounded-xl text-slate-200 placeholder-slate-600 focus:ring-cyan-500 focus:border-cyan-500 transition-all text-sm" id="quick-analyze" placeholder="Paste text snippet here..." rows="3"></textarea>
+<button class="w-full mt-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-2 rounded-xl transition-colors text-sm">
+            Detect Threats
+          </button>
+</div>
+</div>
+</header>
+<!-- END: Hero Section -->
+<!-- BEGIN: Dashboard Grid -->
+<section class="p-8 lg:p-12 max-w-6xl mx-auto w-full" data-purpose="metrics-dashboard">
+<h2 class="text-xl font-bold mb-8 text-white">System Performance</h2>
+<!-- Metrics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+<!-- SVM Metric -->
+<div class="glass-card p-6 rounded-2xl flex flex-col gap-1 hover:scale-105 transition-transform duration-300 cursor-default">
+<span class="text-slate-400 text-xs font-bold uppercase tracking-widest">SVM Accuracy</span>
+<div class="flex items-end gap-2">
+<span class="text-3xl font-bold text-white leading-none">100%</span>
+<span class="text-accent-green text-xs font-semibold">Perfect</span>
+</div>
+<div class="w-full bg-slate-800 h-1.5 rounded-full mt-4">
+<div class="bg-cyan-500 h-1.5 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+<!-- RF Metric -->
+<div class="glass-card p-6 rounded-2xl flex flex-col gap-1 hover:scale-105 transition-transform duration-300 cursor-default">
+<span class="text-slate-400 text-xs font-bold uppercase tracking-widest">RF Accuracy</span>
+<div class="flex items-end gap-2">
+<span class="text-3xl font-bold text-white leading-none">100%</span>
+<span class="text-accent-green text-xs font-semibold">Perfect</span>
+</div>
+<div class="w-full bg-slate-800 h-1.5 rounded-full mt-4">
+<div class="bg-indigo-500 h-1.5 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+<!-- Requests Metric -->
+<div class="glass-card p-6 rounded-2xl flex flex-col gap-1 border-l-4 border-l-cyan-500">
+<span class="text-slate-400 text-xs font-bold uppercase tracking-widest">Total Scanned</span>
+<span class="text-3xl font-bold text-white leading-none">12,840</span>
+<span class="text-slate-500 text-xs mt-1">Last 24 hours</span>
+</div>
+<!-- Latency Metric -->
+<div class="glass-card p-6 rounded-2xl flex flex-col gap-1 border-l-4 border-l-emerald-500">
+<span class="text-slate-400 text-xs font-bold uppercase tracking-widest">Avg Latency</span>
+<span class="text-3xl font-bold text-white leading-none">42ms</span>
+<span class="text-accent-green text-xs mt-1">Optimal</span>
+</div>
+</div>
+<!-- BEGIN: Content Placeholder / Data View -->
+<div class="w-full space-y-6">
+<div class="flex items-center justify-between border-b border-slate-800 pb-4">
+<h3 class="font-semibold text-slate-300">Recent Activity Logs</h3>
+<button class="text-cyan-400 hover:text-cyan-300 text-sm font-medium">Download CSV</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left text-sm" id="activity-table">
+<thead>
+<tr class="text-slate-500 border-b border-slate-800">
+<th class="pb-3 pl-2">Timestamp</th>
+<th class="pb-3">Input Type</th>
+<th class="pb-3">Verdict</th>
+<th class="pb-3">Confidence</th>
+<th class="pb-3 text-right pr-2">Action</th>
+</tr>
+</thead>
+<tbody class="text-slate-300 divide-y divide-slate-800">
+<tr class="hover:bg-slate-800/30 transition-colors">
+<td class="py-4 pl-2 font-mono text-xs">2023-10-27 14:22:10</td>
+<td class="py-4">Text Snippet</td>
+<td class="py-4"><span class="px-2 py-1 bg-green-500/10 text-green-400 rounded text-[10px] font-bold uppercase">Safe</span></td>
+<td class="py-4">99.8%</td>
+<td class="py-4 text-right pr-2"><button class="text-slate-500 hover:text-white">View</button></td>
+</tr>
+<tr class="hover:bg-slate-800/30 transition-colors">
+<td class="py-4 pl-2 font-mono text-xs">2023-10-27 14:20:05</td>
+<td class="py-4">Image OCR</td>
+<td class="py-4"><span class="px-2 py-1 bg-red-500/10 text-red-400 rounded text-[10px] font-bold uppercase">Malicious</span></td>
+<td class="py-4">100.0%</td>
+<td class="py-4 text-right pr-2"><button class="text-slate-500 hover:text-white">View</button></td>
+</tr>
+<tr class="hover:bg-slate-800/30 transition-colors">
+<td class="py-4 pl-2 font-mono text-xs">2023-10-27 14:18:52</td>
+<td class="py-4">Batch File</td>
+<td class="py-4"><span class="px-2 py-1 bg-green-500/10 text-green-400 rounded text-[10px] font-bold uppercase">Safe</span></td>
+<td class="py-4">97.4%</td>
+<td class="py-4 text-right pr-2"><button class="text-slate-500 hover:text-white">View</button></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- END: Content Placeholder -->
+</section>
+<!-- END: Dashboard Grid -->
+<!-- BEGIN: Footer -->
+<footer class="mt-auto p-8 border-t border-slate-800 text-center text-slate-500 text-sm">
+<p>© 2023 Cyberbullying Detection Engine. Powered by High-Efficiency SVM/RF Classification.</p>
+</footer>
+<!-- END: Footer -->
+</main>
+<!-- END: Main Content Area -->
+</body></html>

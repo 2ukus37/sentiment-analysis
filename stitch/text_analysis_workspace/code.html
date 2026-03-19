@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cyberbullying Detection System - Text Analysis</title>
+<!-- Tailwind CSS v3 with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- BEGIN: Style Configuration -->
+<style data-purpose="custom-animations">
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.8; }
+    }
+    .status-pulse {
+      animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+<style data-purpose="gauge-styling">
+    .gauge-container {
+      position: relative;
+      width: 150px;
+      height: 75px;
+      overflow: hidden;
+    }
+    .gauge-bg {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 15px solid #e2e8f0;
+    }
+    .gauge-fill {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      border: 15px solid transparent;
+      border-top-color: #ef4444;
+      border-right-color: #ef4444;
+      transform: rotate(45deg); /* Adjusted by JS */
+      transition: transform 1s ease-out;
+    }
+  </style>
+<!-- END: Style Configuration -->
+</head>
+<body class="bg-slate-50 min-h-screen text-slate-900 font-sans">
+<!-- BEGIN: MainHeader -->
+<header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-10">
+<div class="flex items-center gap-3">
+<div class="bg-indigo-600 p-2 rounded-lg" data-purpose="logo-icon">
+<svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<h1 class="text-xl font-bold text-slate-800">CyberGuard AI</h1>
+<p class="text-xs text-slate-500 uppercase tracking-wider font-semibold">Text Analysis Workspace</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="flex items-center gap-2 text-sm font-medium text-slate-600">
+<span class="h-2 w-2 rounded-full bg-green-500"></span> System Active
+      </span>
+<button class="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">
+        Export Report
+      </button>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: MainContent -->
+<main class="max-w-[1600px] mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-80px)]">
+<!-- BEGIN: InputArea -->
+<section class="lg:col-span-7 flex flex-col h-full bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden" data-purpose="text-input-workspace">
+<div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+<h2 class="font-semibold text-slate-700">Source Text</h2>
+<span class="text-xs text-slate-400" id="char-count">0 characters</span>
+</div>
+<div class="flex-grow relative">
+<textarea class="w-full h-full p-6 text-lg border-none focus:ring-0 resize-none placeholder-slate-300 text-slate-700" id="analysis-input" placeholder="Paste or type content here for analysis..."></textarea>
+</div>
+<div class="p-4 border-t border-slate-100 flex justify-end gap-3 bg-white">
+<button class="px-6 py-2.5 bg-slate-100 text-slate-600 font-semibold rounded-lg hover:bg-slate-200 transition-colors" onclick="document.getElementById('analysis-input').value = ''">
+          Clear
+        </button>
+<button class="px-8 py-2.5 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition-all shadow-md shadow-indigo-100 flex items-center gap-2">
+<span>Run Analysis</span>
+<svg class="h-4 w-4" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+</div>
+</section>
+<!-- END: InputArea -->
+<!-- BEGIN: ResultsPanel -->
+<aside class="lg:col-span-5 flex flex-col gap-6 h-full overflow-y-auto" data-purpose="analysis-results-panel">
+<!-- BEGIN: EnsemblePrediction -->
+<div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200">
+<h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Ensemble Prediction</h2>
+<div class="flex items-center justify-between">
+<div class="flex flex-col gap-1">
+<span class="text-xs font-semibold text-slate-500 uppercase">Detection Result</span>
+<div class="flex items-center gap-2">
+<span class="px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-bold border border-red-200 status-pulse">Cyberbullying Detected</span>
+</div>
+</div>
+<!-- Confidence Gauge -->
+<div class="flex flex-col items-center">
+<div class="gauge-container">
+<div class="gauge-bg"></div>
+<div class="gauge-fill" style="transform: rotate(145deg);"></div> <!-- 145deg represents ~85% -->
+<div class="absolute inset-0 flex items-end justify-center pb-1">
+<span class="text-2xl font-black text-slate-800">87%</span>
+</div>
+</div>
+<span class="text-[10px] font-bold text-slate-400 mt-1 uppercase">Confidence Score</span>
+</div>
+</div>
+</div>
+<!-- END: EnsemblePrediction -->
+<!-- BEGIN: ModelBreakdown -->
+<div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 flex-grow">
+<h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Model Comparison</h2>
+<div class="space-y-6">
+<!-- ML Model Card -->
+<div class="p-4 rounded-lg border border-slate-100 bg-slate-50/50">
+<div class="flex justify-between items-start mb-3">
+<div>
+<h3 class="font-bold text-slate-700">ML Model Prediction</h3>
+<p class="text-xs text-slate-500">Random Forest + BERT Embeddings</p>
+</div>
+<span class="text-xs font-bold px-2 py-0.5 bg-red-50 text-red-600 rounded border border-red-100">POSITIVE</span>
+</div>
+<div class="w-full bg-slate-200 rounded-full h-2">
+<div class="bg-red-500 h-2 rounded-full" style="width: 92%"></div>
+</div>
+<div class="flex justify-between mt-1">
+<span class="text-[10px] font-medium text-slate-400">Probability</span>
+<span class="text-[10px] font-bold text-red-600">92.4% Match</span>
+</div>
+</div>
+<!-- GPT Card -->
+<div class="p-4 rounded-lg border border-slate-100 bg-slate-50/50">
+<div class="flex justify-between items-start mb-3">
+<div>
+<h3 class="font-bold text-slate-700">GPT Analysis</h3>
+<p class="text-xs text-slate-500">Semantic &amp; Intent Analysis</p>
+</div>
+<span class="text-xs font-bold px-2 py-0.5 bg-red-50 text-red-600 rounded border border-red-100">POSITIVE</span>
+</div>
+<div class="w-full bg-slate-200 rounded-full h-2">
+<div class="bg-red-500 h-2 rounded-full" style="width: 82%"></div>
+</div>
+<div class="flex justify-between mt-1">
+<span class="text-[10px] font-medium text-slate-400">Probability</span>
+<span class="text-[10px] font-bold text-red-600">81.7% Match</span>
+</div>
+</div>
+<!-- Agreement Status -->
+<div class="mt-8 pt-6 border-t border-slate-100">
+<div class="flex items-center gap-4 p-4 rounded-xl bg-indigo-50 border border-indigo-100" data-purpose="agreement-indicator">
+<div class="h-10 w-10 bg-indigo-600 rounded-full flex items-center justify-center flex-shrink-0">
+<svg class="h-6 w-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div>
+<h4 class="text-indigo-900 font-bold text-sm uppercase">Full Agreement</h4>
+<p class="text-xs text-indigo-700">Both models have identified this content as potentially harmful with high confidence.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- END: ModelBreakdown -->
+<!-- BEGIN: SafetyDisclaimer -->
+<div class="bg-slate-800 text-slate-300 p-4 rounded-xl flex gap-3 items-start">
+<svg class="h-5 w-5 text-amber-400 flex-shrink-0" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+<path clip-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" fill-rule="evenodd"></path>
+</svg>
+<p class="text-[11px] leading-relaxed italic">
+          AI predictions are probabilistic. This tool is designed to assist moderators, not replace human judgment. Content flagged as red indicates a high risk of cyberbullying.
+        </p>
+</div>
+<!-- END: SafetyDisclaimer -->
+</aside>
+<!-- END: ResultsPanel -->
+</main>
+<!-- END: MainContent -->
+<script data-purpose="character-counter">
+    const textarea = document.getElementById('analysis-input');
+    const charCount = document.getElementById('char-count');
+    
+    textarea.addEventListener('input', () => {
+      charCount.textContent = `${textarea.value.length} characters`;
+    });
+  </script>
+</body></html>

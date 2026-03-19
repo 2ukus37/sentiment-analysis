@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cyberbullying Detection System | Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: { 950: '#020617', 900: '#0f172a', 800: '#1e293b', 700: '#334155' },
+                        accent: { cyan: '#22d3ee', green: '#4ade80' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .status-pulse {
+            box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(74, 222, 128, 0); }
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex">
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 border-r border-slate-800 flex-shrink-0 flex flex-col h-screen sticky top-0">
+        <div class="p-6 border-b border-slate-800">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-cyan-500 rounded-lg flex items-center justify-center">
+                    <svg class="w-5 h-5 text-slate-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                </div>
+                <span class="font-bold tracking-tight">CDS Admin</span>
+            </div>
+        </div>
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <a class="flex items-center gap-3 px-4 py-3 bg-slate-800 text-white rounded-xl transition-all" href="#" onclick="switchTab('dashboard')">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                <span>Dashboard</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-all text-slate-400 hover:text-white" href="#" onclick="switchTab('text')">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                <span>Text Analysis</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-all text-slate-400 hover:text-white" href="#" onclick="switchTab('image')">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                <span>Image OCR</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-all text-slate-400 hover:text-white" href="#" onclick="switchTab('file')">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                <span>File Upload</span>
+            </a>
+        </nav>
+        <div class="p-4 border-t border-slate-800">
+            <a class="flex items-center gap-3 px-4 py-3 hover:bg-slate-800 rounded-xl transition-all text-slate-400 hover:text-white" href="/api/health" target="_blank">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                <span>API Docs</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col min-w-0 bg-slate-900/50">
+        <!-- Hero Section -->
+        <header class="p-8 lg:p-12 border-b border-slate-800">
+            <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div class="space-y-2">
+                    <h1 class="text-4xl font-extrabold tracking-tight text-white">Cyberbullying Detection System</h1>
+                    <p class="text-slate-400 max-w-lg leading-relaxed">
+                        Advanced real-time analysis for identifying harmful content across social platforms using machine learning heuristics.
+                    </p>
+                    <div class="flex items-center gap-2 pt-2">
+                        <span class="relative flex h-3 w-3">
+                            <span class="status-pulse absolute inline-flex h-full w-full rounded-full bg-accent-green opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-accent-green"></span>
+                        </span>
+                        <span class="text-xs font-semibold uppercase tracking-widest text-accent-green">API Health: Online</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard Tab -->
+        <section id="dashboardTab" class="tab-content active p-8 lg:p-12 max-w-6xl mx-auto w-full">
+            <h2 class="text-xl font-bold mb-8 text-white">System Performance</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                <div class="glass-card p-6 rounded-2xl flex flex-col gap-1 hover:scale-105 transition-transform duration-300 cursor-default">
+                    <span class="text-slate-400 text-xs font-bold uppercase tracking-widest">SVM Accuracy</span>
+                    <div class="flex items-end gap-2">
+                        <span class="text-3xl font-bold text-white leading-none">100%</span>
+                        <span class="text-accent-green text-xs font-semibold">Perfect</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full mt-4">
+                        <div class="bg-cyan-500 h-1.5 rounded-full" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="glass-card p-6 rounded-2xl flex flex-col gap-1 hover:scale-105 transition-transform duration-300 cursor-default">
+                    <span class="text-slate-400 text-xs font-bold uppercase tracking-widest">RF Accuracy</span>
+                    <div class="flex items-end gap-2">
+                        <span class="text-3xl font-bold text-white leading-none">100%</span>
+                        <span class="text-accent-green text-xs font-semibold">Perfect</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-1.5 rounded-full mt-4">
+                        <div class="bg-indigo-500 h-1.5 rounded-full" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div class="glass-card p-6 rounded-2xl flex flex-col gap-1 border-l-4 border-l-cyan-500">
+                    <span class="text-slate-400 text-xs font-bold uppercase tracking-widest">Total Scanned</span>
+                    <span class="text-3xl font-bold text-white leading-none" id="totalScanned">0</span>
+                    <span class="text-slate-500 text-xs mt-1">This session</span>
+                </div>
+                <div class="glass-card p-6 rounded-2xl flex flex-col gap-1 border-l-4 border-l-emerald-500">
+                    <span class="text-slate-400 text-xs font-bold uppercase tracking-widest">Avg Latency</span>
+                    <span class="text-3xl font-bold text-white leading-none" id="avgLatency">0ms</span>
+                    <span class="text-accent-green text-xs mt-1">Optimal</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Text Analysis Tab -->
+        <section id="textTab" class="tab-content p-8 lg:p-12 max-w-6xl mx-auto w-full">
+            <div class="glass-card p-8 rounded-2xl">
+                <h2 class="text-2xl font-bold mb-6 text-white">Text Analysis Workspace</h2>
+                <form id="predictionForm">
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Source Text</label>
+                        <textarea id="textInput" class="w-full bg-slate-950 border-slate-700 rounded-xl text-slate-200 placeholder-slate-600 focus:ring-cyan-500 focus:border-cyan-500 transition-all text-lg p-6" rows="6" placeholder="Paste or type content here for analysis..."></textarea>
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Source Type</label>
+                        <select id="sourceType" class="w-full bg-slate-950 border-slate-700 rounded-xl text-slate-200 focus:ring-cyan-500 focus:border-cyan-500 p-3">
+                            <option value="auto">Auto-detect</option>
+                            <option value="twitter">Twitter / Social Media</option>
+                            <option value="wikipedia">Wikipedia / Forums</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition-colors">
+                        <span class="btn-text">Run Analysis</span>
+                        <span class="spinner" style="display: none;">⏳</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Image OCR Tab -->
+        <section id="imageTab" class="tab-content p-8 lg:p-12 max-w-6xl mx-auto w-full">
+            <div class="glass-card p-8 rounded-2xl">
+                <h2 class="text-2xl font-bold mb-6 text-white">Image & OCR Analysis</h2>
+                <form id="imageForm">
+                    <div class="border-2 border-dashed border-slate-700 bg-slate-900/50 rounded-2xl p-8 transition-all hover:border-cyan-500 hover:bg-slate-800/50 flex flex-col items-center justify-center min-h-[300px] cursor-pointer" id="imageUploadArea">
+                        <input type="file" id="imageInput" class="hidden" accept="image/*">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                            </div>
+                            <p class="text-lg font-medium text-white mb-1">Upload an Image</p>
+                            <p class="text-sm text-slate-500">Drag and drop or click to browse</p>
+                            <p class="text-xs text-slate-600 mt-4 italic">Supports PNG, JPG up to 10MB</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-slate-400 text-sm" id="imageFileInfo" style="display: none;">
+                        <strong>Selected:</strong> <span id="imageFileName"></span>
+                    </div>
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Source Type</label>
+                        <select id="imageSourceType" class="w-full bg-slate-950 border-slate-700 rounded-xl text-slate-200 focus:ring-cyan-500 focus:border-cyan-500 p-3">
+                            <option value="auto">Auto-detect</option>
+                            <option value="twitter">Twitter / Social Media</option>
+                            <option value="wikipedia">Wikipedia / Forums</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full mt-6 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition-colors">
+                        <span class="btn-text">Analyze Image</span>
+                        <span class="spinner" style="display: none;">⏳</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- File Upload Tab -->
+        <section id="fileTab" class="tab-content p-8 lg:p-12 max-w-6xl mx-auto w-full">
+            <div class="glass-card p-8 rounded-2xl">
+                <h2 class="text-2xl font-bold mb-6 text-white">Batch File Processing</h2>
+                <form id="fileForm">
+                    <div class="border-2 border-dashed border-slate-700 bg-slate-900/50 rounded-2xl p-8 transition-all hover:border-cyan-500 hover:bg-slate-800/50 flex flex-col items-center justify-center min-h-[300px] cursor-pointer" id="fileUploadArea">
+                        <input type="file" id="fileInput" class="hidden" accept=".csv,.txt">
+                        <div class="text-center">
+                            <div class="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <svg class="w-8 h-8 text-cyan-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+                            </div>
+                            <p class="text-lg font-medium text-white mb-1">Upload File</p>
+                            <p class="text-sm text-slate-500">Drag and drop or click to browse</p>
+                            <p class="text-xs text-slate-600 mt-4 italic">Support for .CSV and .TXT files</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 text-slate-400 text-sm" id="fileFileInfo" style="display: none;">
+                        <strong>Selected:</strong> <span id="fileFileName"></span>
+                    </div>
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Source Type</label>
+                        <select id="fileSourceType" class="w-full bg-slate-950 border-slate-700 rounded-xl text-slate-200 focus:ring-cyan-500 focus:border-cyan-500 p-3">
+                            <option value="auto">Auto-detect</option>
+                            <option value="twitter">Twitter / Social Media</option>
+                            <option value="wikipedia">Wikipedia / Forums</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="w-full mt-6 bg-cyan-600 hover:bg-cyan-500 text-white font-bold py-3 rounded-xl transition-colors">
+                        <span class="btn-text">Analyze File</span>
+                        <span class="spinner" style="display: none;">⏳</span>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Results Section -->
+        <section id="resultCard" class="p-8 lg:p-12 max-w-6xl mx-auto w-full" style="display: none;">
+            <div class="glass-card p-8 rounded-2xl">
+                <h2 class="text-2xl font-bold mb-6 text-white">Analysis Result</h2>
+                <div class="space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <span class="text-sm font-bold text-slate-400 uppercase tracking-widest">Detection Result</span>
+                            <div class="mt-2">
+                                <span id="resultLabel" class="px-4 py-2 rounded-full text-lg font-bold"></span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-sm font-bold text-slate-400 uppercase tracking-widest">Confidence Score</span>
+                            <div class="text-4xl font-black text-white mt-2" id="confidenceValue">0%</div>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-800 h-2 rounded-full">
+                        <div id="confidenceBar" class="h-2 rounded-full transition-all duration-500"></div>
+                    </div>
+                    <div id="ensembleScores" class="grid grid-cols-2 gap-4" style="display: none;">
+                        <div class="bg-slate-800/50 p-4 rounded-lg">
+                            <h4 class="text-cyan-400 text-sm font-bold mb-2">🤖 ML Model</h4>
+                            <div class="text-2xl font-bold text-white" id="mlScore">-</div>
+                        </div>
+                        <div class="bg-slate-800/50 p-4 rounded-lg">
+                            <h4 class="text-cyan-400 text-sm font-bold mb-2">🧠 GPT Score</h4>
+                            <div class="text-2xl font-bold text-white" id="gptScore">-</div>
+                        </div>
+                    </div>
+                    <div class="border-t border-slate-700 pt-6 space-y-3">
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400">Analyzed Text:</span>
+                            <span class="text-slate-200 text-right max-w-md" id="analyzedText"></span>
+                        </div>
+                        <div class="flex justify-between text-sm" id="extractedTextItem" style="display: none;">
+                            <span class="text-slate-400">Extracted Text:</span>
+                            <span class="text-slate-200 text-right max-w-md font-mono text-xs bg-slate-800 p-2 rounded" id="extractedText"></span>
+                        </div>
+                        <div class="flex justify-between text-sm" id="ocrMethodItem" style="display: none;">
+                            <span class="text-slate-400">OCR Method:</span>
+                            <span class="text-cyan-400 text-xs" id="ocrMethod"></span>
+                        </div>
+                        <div class="flex justify-between text-sm">
+                            <span class="text-slate-400">Processing Time:</span>
+                            <span class="text-accent-green" id="latency"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Batch Results Section -->
+        <section id="batchResultCard" class="p-8 lg:p-12 max-w-6xl mx-auto w-full" style="display: none;">
+            <div class="glass-card p-8 rounded-2xl">
+                <h2 class="text-2xl font-bold mb-6 text-white">Batch Analysis Results</h2>
+                <div id="batchResults"></div>
+            </div>
+        </section>
+
+        <!-- Error Section -->
+        <section id="errorCard" class="p-8 lg:p-12 max-w-6xl mx-auto w-full" style="display: none;">
+            <div class="bg-red-900/20 border border-red-500/50 p-6 rounded-2xl">
+                <h3 class="text-red-400 font-bold text-lg mb-2">⚠️ Error</h3>
+                <p class="text-red-300" id="errorMessage"></p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="mt-auto p-8 border-t border-slate-800 text-center text-slate-500 text-sm">
+            <p>© 2026 Cyberbullying Detection Engine. Powered by High-Efficiency SVM/RF Classification + GPT.</p>
+        </footer>
+    </main>
+
+    <script>
+        let totalScanned = 0;
+        let totalLatency = 0;
+        let analysisCount = 0;
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('aside a').forEach(link => {
+                link.classList.remove('bg-slate-800', 'text-white');
+                link.classList.add('text-slate-400', 'hover:text-white');
+            });
+            
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.closest('a').classList.add('bg-slate-800', 'text-white');
+            event.target.closest('a').classList.remove('text-slate-400');
+            
+            document.getElementById('resultCard').style.display = 'none';
+            document.getElementById('batchResultCard').style.display = 'none';
+            document.getElementById('errorCard').style.display = 'none';
+        }
+
+        function setupFileUpload(uploadAreaId, inputId, fileInfoId, fileNameId) {
+            const uploadArea = document.getElementById(uploadAreaId);
+            const fileInput = document.getElementById(inputId);
+            const fileInfo = document.getElementById(fileInfoId);
+            const fileName = document.getElementById(fileNameId);
+
+            uploadArea.addEventListener('click', () => fileInput.click());
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('border-cyan-500', 'bg-slate-800/50');
+            });
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('border-cyan-500', 'bg-slate-800/50');
+            });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('border-cyan-500', 'bg-slate-800/50');
+                if (e.dataTransfer.files.length > 0) {
+                    fileInput.files = e.dataTransfer.files;
+                    fileName.textContent = e.dataTransfer.files[0].name;
+                    fileInfo.style.display = 'block';
+                }
+            });
+            fileInput.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    fileName.textContent = e.target.files[0].name;
+                    fileInfo.style.display = 'block';
+                }
+            });
+        }
+
+        setupFileUpload('imageUploadArea', 'imageInput', 'imageFileInfo', 'imageFileName');
+        setupFileUpload('fileUploadArea', 'fileInput', 'fileFileInfo', 'fileFileName');
+
+        // Text form submission
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const text = document.getElementById('textInput').value.trim();
+            if (!text) {
+                showError('Please enter some text to analyze');
+                return;
+            }
+
+            const btn = e.target.querySelector('button[type="submit"]');
+            const spinner = btn.querySelector('.spinner');
+            const btnText = btn.querySelector('.btn-text');
+            
+            btn.disabled = true;
+            spinner.style.display = 'inline';
+            btnText.textContent = 'Analyzing...';
+            
+            document.getElementById('resultCard').style.display = 'none';
+            document.getElementById('errorCard').style.display = 'none';
+
+            try {
+                const response = await fetch('/api/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        text: text,
+                        source_type: document.getElementById('sourceType').value
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayResult(data);
+                } else {
+                    showError(data.error || 'Analysis failed');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.textContent = 'Run Analysis';
+            }
+        });
+
+        // Image form submission
+        document.getElementById('imageForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const spinner = btn.querySelector('.spinner');
+            const btnText = btn.querySelector('.btn-text');
+            
+            const fileInput = document.getElementById('imageInput');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                showError('Please select an image file');
+                return;
+            }
+            
+            btn.disabled = true;
+            spinner.style.display = 'inline';
+            btnText.textContent = 'Analyzing...';
+            
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('source_type', document.getElementById('imageSourceType').value);
+
+            try {
+                console.log('Sending image upload request...');
+                const response = await fetch('/api/predict/image', {
+                    method: 'POST',
+                    body: formData
+                });
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (response.ok && data.success) {
+                    displayResult(data);
+                    if (data.extracted_text) {
+                        document.getElementById('extractedTextItem').style.display = 'flex';
+                        document.getElementById('extractedText').textContent = data.extracted_text;
+                        if (data.ocr_method) {
+                            document.getElementById('ocrMethodItem').style.display = 'flex';
+                            document.getElementById('ocrMethod').textContent = data.ocr_method;
+                        }
+                    }
+                } else {
+                    showError(data.error || 'Analysis failed');
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                showError('Network error: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.textContent = 'Analyze Image';
+            }
+        });
+
+        // File form submission
+        document.getElementById('fileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const spinner = btn.querySelector('.spinner');
+            const btnText = btn.querySelector('.btn-text');
+            
+            btn.disabled = true;
+            spinner.style.display = 'inline';
+            btnText.textContent = 'Analyzing...';
+
+            const formData = new FormData();
+            formData.append('file', document.getElementById('fileInput').files[0]);
+            formData.append('source_type', document.getElementById('fileSourceType').value);
+
+            try {
+                console.log('Sending file upload request...');
+                const response = await fetch('/api/predict/file', {
+                    method: 'POST',
+                    body: formData
+                });
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                if (response.ok && data.success) {
+                    displayBatchResults(data);
+                } else {
+                    showError(data.error || 'Analysis failed');
+                }
+            } catch (error) {
+                console.error('Network error:', error);
+                showError('Network error: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.textContent = 'Analyze File';
+            }
+        });
+
+        function displayBatchResults(data) {
+            document.getElementById('batchResultCard').style.display = 'block';
+            const batchResults = document.getElementById('batchResults');
+            
+            let html = `<p class="text-slate-300 mb-4"><strong>Total Analyzed:</strong> ${data.count}</p>`;
+            html += '<div class="overflow-x-auto"><table class="w-full text-left text-sm">';
+            html += '<thead><tr class="border-b border-slate-700"><th class="pb-3 text-slate-400">Text</th><th class="pb-3 text-slate-400">Label</th><th class="pb-3 text-slate-400">Confidence</th></tr></thead><tbody>';
+            
+            data.results.forEach(result => {
+                const label = result.ensemble_label || result.label;
+                const confidence = result.ensemble_confidence || result.confidence;
+                const isSafe = label.toLowerCase().includes('non') || label.toLowerCase().includes('safe');
+                html += `<tr class="border-b border-slate-800"><td class="py-3 text-slate-300">${result.text.substring(0, 100)}...</td>`;
+                html += `<td class="py-3"><span class="px-3 py-1 rounded-full text-xs font-bold ${isSafe ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}">${label}</span></td>`;
+                html += `<td class="py-3 text-slate-300">${(confidence * 100).toFixed(1)}%</td></tr>`;
+            });
+            
+            html += '</tbody></table></div>';
+            batchResults.innerHTML = html;
+            
+            totalScanned += data.count;
+            document.getElementById('totalScanned').textContent = totalScanned;
+        }
+
+        const originalDisplayResult = window.displayResult;
+        window.displayResult = function(data) {
+            const mappedData = {
+                label: data.ensemble_label || data.label || 'Unknown',
+                confidence: data.ensemble_confidence || data.confidence || 0,
+                prediction: data.ensemble_prediction !== undefined ? data.ensemble_prediction : data.prediction,
+                source_type: data.ml_source || data.source_type || 'auto',
+                text: data.text || '',
+                latency_ms: data.total_latency_ms || data.latency_ms || 0,
+                ml_confidence: data.ml_confidence,
+                gpt_confidence: data.gpt_confidence,
+                extracted_text: data.extracted_text
+            };
+            
+            document.getElementById('resultCard').style.display = 'block';
+            document.getElementById('errorCard').style.display = 'none';
+            
+            const resultLabel = document.getElementById('resultLabel');
+            resultLabel.textContent = mappedData.label;
+            const isSafe = mappedData.prediction === 0;
+            resultLabel.className = `px-4 py-2 rounded-full text-lg font-bold ${isSafe ? 'bg-green-900/30 text-green-400 border border-green-500' : 'bg-red-900/30 text-red-400 border border-red-500'}`;
+            
+            const confidencePercent = (mappedData.confidence * 100).toFixed(1);
+            document.getElementById('confidenceValue').textContent = confidencePercent + '%';
+            document.getElementById('confidenceBar').style.width = confidencePercent + '%';
+            document.getElementById('confidenceBar').className = `h-2 rounded-full transition-all duration-500 ${isSafe ? 'bg-green-500' : 'bg-red-500'}`;
+            
+            document.getElementById('analyzedText').textContent = mappedData.text;
+            document.getElementById('latency').textContent = mappedData.latency_ms.toFixed(2) + ' ms';
+            
+            if (data.ml_confidence !== undefined && data.gpt_confidence !== undefined) {
+                document.getElementById('ensembleScores').style.display = 'grid';
+                document.getElementById('mlScore').textContent = (data.ml_confidence * 100).toFixed(1) + '%';
+                document.getElementById('gptScore').textContent = (data.gpt_confidence * 100).toFixed(1) + '%';
+            }
+            
+            totalScanned++;
+            analysisCount++;
+            totalLatency += mappedData.latency_ms;
+            document.getElementById('totalScanned').textContent = totalScanned;
+            document.getElementById('avgLatency').textContent = Math.round(totalLatency / analysisCount) + 'ms';
+        };
+
+        function showError(message) {
+            document.getElementById('resultCard').style.display = 'none';
+            document.getElementById('batchResultCard').style.display = 'none';
+            document.getElementById('errorCard').style.display = 'block';
+            document.getElementById('errorMessage').textContent = message;
+        }
+        window.showError = showError;
+    </script>
+</body>
+</html>
