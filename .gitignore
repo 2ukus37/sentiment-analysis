@@ -30,10 +30,10 @@ data/*.json
 !data/.gitkeep
 
 # Model files
-models/*.pkl
 models/*.h5
 models/*.pt
 !models/.gitkeep
+!models/*.pkl
 
 # Logs
 logs/*.log

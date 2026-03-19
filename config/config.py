@@ -45,8 +45,8 @@ WIKIPEDIA_RF_PARAMS = {
 
 # API settings
 API_HOST = '0.0.0.0'
-API_PORT = 5000
-DEBUG = True
+API_PORT = int(os.environ.get('PORT', 5000))
+DEBUG = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
 
 # Logging
 LOG_LEVEL = 'INFO'

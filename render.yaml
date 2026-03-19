@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: cyberbullying-detection
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn src.api.app_enhanced:app
+    envVars:
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OCR_SPACE_API_KEY
+        sync: false
+      - key: FLASK_DEBUG
+        value: false
